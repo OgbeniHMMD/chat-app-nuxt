@@ -6,18 +6,19 @@
           SIMPLE CHAT
         </h1>
         <p class="font-mono text-sm text-gray-600">
-          Hint: Open this app in another tab to open a new session
+          Hint: <a href="/" target="_blank" class="underline">Open this app in another tab</a> to start a new session
         </p>
       </div>
 
       <div class="bg-white flex flex-col flex-grow py-8 px-4 gap-4 overflow-y-auto">
         <div v-if="!chats.length" class="flex h-full text-center text-gray-700 justify-center items-center">
-          Nothing to show! <br><br>Be the first to send your message.
+          Nothing to show! <br>Be the first to send your message.
         </div>
 
         <div v-for="(chat,i) of chats" :key="i">
           <ChatCard :chat="chat" />
         </div>
+        <div ref="bottom" />
       </div>
 
       <div class="bg-white border-t flex font-medium font-mono border-green-500 text-lg text-center p-2 gap-2">
@@ -46,36 +47,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUpdated, onUnmounted } from 'vue'
 
-// constants
-const id = 419 // hardcoded ID
-
-// reactive state
 const chats = ref([])
 const message = ref('')
+const timer = ref('')
 
-// functions that mutate state and trigger updates
-function sendChat () {
+const bottom = ref(null)
+const getId = () => sessionStorage.getItem('id')
+const randomColor = () => `hsla(${~~(360 * Math.random())},70%,80%,0.6)`
+
+const getColor = () => {
+  const color = sessionStorage.getItem('color')
+  return color || randomColor()
+}
+
+const sendChat = () => {
   if (message.value) {
     chats.value.push({
-      id,
+      id: getId(),
       time: new Date(),
-      text: message.value
+      text: message.value,
+      color: getColor()
     })
 
     message.value = ''
+    localStorage.setItem('chats', JSON.stringify(chats.value))
   }
 }
 
-// lifecycle hooks
 onMounted(() => {
-  const init = [{
-    id: 0,
-    time: '01/01/2022',
-    text: 'Nothing to show. Be the first to send your message.'
-  }]
+  sessionStorage.setItem('id', getId() || crypto.randomUUID().slice(-5))
+  sessionStorage.setItem('color', randomColor())
 
-  chats.value = JSON.parse(localStorage.getItem('chats')) || init
+  // Watch localStorage
+  timer.value = setInterval(() => {
+    chats.value = JSON.parse(localStorage.getItem('chats')) || []
+  }, 1000)
 })
+
+onUpdated(() => {
+  bottom.value?.scrollIntoView({ behavior: 'smooth' })
+})
+
+onUnmounted(() => cleanInterval(timer.value))
 </script>
