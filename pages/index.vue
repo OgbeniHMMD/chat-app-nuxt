@@ -1,30 +1,23 @@
 <template>
   <div class="bg-gray-100">
-    <div
-      class="container flex flex-col mx-auto min-h-screen max-w-screen-md p-4 justify-between"
-    >
+    <div class="container flex flex-col h-screen mx-auto max-w-screen-md p-4 justify-between">
       <div class="text-center pb-4">
-        <h1 class="font-medium text-lg pb-2">SIMPLE CHAT</h1>
+        <h1 class="font-medium text-lg pb-2">
+          SIMPLE CHAT
+        </h1>
         <p class="font-mono text-sm text-gray-600">
           Hint: Open this app in another tab to open a new session
         </p>
       </div>
 
-      <div class="bg-white flex flex-col flex-grow p-4 gap-4">
-        <ChatCard />
-        <ChatCard />
-        <ChatCard />
+      <div class="bg-white flex flex-col flex-grow p-4 gap-4 overflow-y-auto">
+        <ChatCard v-for="i of count" />
       </div>
 
-      <div
-        class="bg-white border-t border flex font-medium font-mono text-lg text-center p-2 gap-2"
-      >
-        <input
-          placeholder="Enter Message"
-          class="bg-transparent w-full py-2 px-4 focus:outline-0"
-        />
+      <div class="bg-white border-t flex font-medium font-mono border-green-500 text-lg text-center p-2 gap-2">
+        <input placeholder="Enter Message" class="bg-transparent w-full py-2 px-4 focus:outline-0">
 
-        <button class="bg-transparent text-green-700 hover:text-green-800">
+        <button class="bg-transparent text-green-700 hover:text-green-800" @click="increment">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"
@@ -41,10 +34,19 @@
   </div>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
+<script setup>
+import { ref, onMounted } from 'vue'
 
-export default Vue.extend({
-  name: "IndexPage",
-});
+// reactive state
+const count = ref(0)
+
+// functions that mutate state and trigger updates
+function increment () {
+  count.value++
+}
+
+// lifecycle hooks
+onMounted(() => {
+  console.log(`The initial count is ${count.value}.`)
+})
 </script>
